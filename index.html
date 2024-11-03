@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YTMP3 & MP4 Downloader</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 600px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            color: #333333;
+        }
+        .btn-custom {
+            background-color: #1e3c72;
+            color: white;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #2a5298;
+        }
+        .spinner-border {
+            display: none; /* Disembunyikan di awal */
+            margin-top: 10px;
+        }
+        .imgAds {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center">
+        <h1 class="mb-4">YouTube MP3 & MP4 Downloader</h1>
+        <p class="mb-4">Masukkan link YouTube untuk mengunduh audionya dalam format M4A atau video dalam format MP4.</p>
+        
+        <!-- Form untuk input URL -->
+        <div class="mb-3">
+            <input type="text" id="ytUrl" class="form-control" placeholder="Paste YouTube link here" aria-label="YouTube URL">
+        </div>
+        <button id="downloadBtn" class="btn btn-custom w-100 mb-3" onclick="downloadMedia()">Convert</button>
+
+        <!-- Loader -->
+        <div id="loader" class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <!-- Tempat untuk hasil atau pesan error -->
+        <div id="result" class="mt-4"></div>
+    </div>
+    <br>
+    <div class="container">
+      <img class="imgAds" src="https://i.ibb.co.com/fXL7jzr/IMG-20241103-WA0124.png" alt="ads">
+    </div>
+    <!-- Script untuk Bootstrap dan custom JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function downloadMedia() {
+            const url = document.getElementById("ytUrl").value;
+            const resultDiv = document.getElementById("result");
+            const loader = document.getElementById("loader");
+
+            if (!url) {
+                resultDiv.innerHTML = "<div class='alert alert-warning'>Please enter a YouTube link.</div>";
+                return;
+            }
+
+            // Menampilkan loader dan membersihkan hasil sebelumnya
+            loader.style.display = "inline-block";
+            resultDiv.innerHTML = "";
+
+            // Panggil API untuk konversi
+            fetch(`https://api.ryzendesu.vip/api/downloader/y2mate?url=${url}`)
+                .then(response => response.json())
+                .then(data => {
+                    loader.style.display = "none"; // Sembunyikan loader
+                    if (data.type === "download") {
+                        const title = data.download.title;
+                        const m4aUrl = data.download.dl.mp3[".m4a"].url; // URL M4A
+                        const mp4Url = data.download.dl.mp4["360p"].url; // URL MP4
+                        const thumbnail = data.download.thumbnail;
+
+                        resultDiv.innerHTML = `
+                            <div class="alert alert-success">Conversion Successful!</div>
+                            <h5>${title}</h5>
+                            <img src="${thumbnail}" class="img-fluid mb-3" alt="${title}">
+                            <a href="${m4aUrl}" class="btn btn-success w-100 mb-2" target="_blank">Download M4A - Audio </a>
+                            <a href="${mp4Url}" class="btn btn-danger w-100" target="_blank">Download MP4 - Video</a>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = "<div class='alert alert-danger'>Conversion failed. Please check the link and try again.</div>";
+                    }
+                })
+                .catch(error => {
+                    loader.style.display = "none"; // Sembunyikan loader jika ada error
+                    console.error(error);
+                    resultDiv.innerHTML = "<div class='alert alert-danger'>Error processing your request. Please try again later.</div>";
+                });
+        }
+    </script>
+</body>
+</html>
